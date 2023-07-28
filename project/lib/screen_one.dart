@@ -7,6 +7,21 @@ import 'package:intl/intl.dart';
 class Screen1 extends StatefulWidget {
   @override
   createState() => _Screen1State();
+  void setLatitude(String latitude) {
+    setLatitude(latitude);
+  }
+
+  void setLongitude(String longitude) {
+    setLongitude(longitude);
+  }
+
+  void fetchWeatherData(double latitude, double longitude) {
+    fetchWeatherData(latitude, longitude);
+  }
+
+  void fetchCurrentLocation() {
+    fetchCurrentLocation();
+  }
 }
 
 class _Screen1State extends State<Screen1> {
@@ -18,6 +33,8 @@ class _Screen1State extends State<Screen1> {
   String temperature = '';
   String formattedDate = '';
   String dayOfWeek = '';
+  double latitude = 0.0;
+  double longitude = 0.0;
 
   @override
   void initState() {
@@ -80,6 +97,11 @@ class _Screen1State extends State<Screen1> {
   String get getCityName => cityName;
   // create a setter for the cityName variable
   set setCityName(String cityName) => this.cityName = cityName;
+
+  set setLatitude(double latitude) => this.latitude = latitude;
+  set setLongitude(double longitude) => this.longitude = longitude;
+  double get getLatitude => latitude;
+  double get getLongitude => longitude;
 
   @override
   Widget build(BuildContext context) {
