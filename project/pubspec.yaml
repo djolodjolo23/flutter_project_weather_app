@@ -19,6 +19,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   intl: ^0.17.0  
   geocoding: ^2.0.1
+  provider: ^5.0.0
+
 
 
 
