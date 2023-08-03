@@ -7,21 +7,6 @@ import 'package:intl/intl.dart';
 class Screen1 extends StatefulWidget {
   @override
   createState() => _Screen1State();
-  void setLatitude(String latitude) {
-    setLatitude(latitude);
-  }
-
-  void setLongitude(String longitude) {
-    setLongitude(longitude);
-  }
-
-  void fetchWeatherData(double latitude, double longitude) {
-    fetchWeatherData(latitude, longitude);
-  }
-
-  void fetchCurrentLocation() {
-    fetchCurrentLocation();
-  }
 }
 
 class _Screen1State extends State<Screen1> {
@@ -35,11 +20,16 @@ class _Screen1State extends State<Screen1> {
   String dayOfWeek = '';
   double latitude = 0.0;
   double longitude = 0.0;
+  static bool weatherDataLoaded = false;
+  static String cachedWeatherData = '';
 
   @override
   void initState() {
     super.initState();
-    fetchCurrentLocation();
+    if (!weatherDataLoaded) {
+      fetchCurrentLocation();
+      weatherDataLoaded = true;
+    }
   }
 
   Future<void> fetchCurrentLocation() async {
@@ -85,6 +75,7 @@ class _Screen1State extends State<Screen1> {
           weatherData =
               '$cityName\n\n$dayOfWeek, $formattedDate\n\n$weatherDescription\n\n$temperature°C';
         });
+        cachedWeatherData = weatherData;
       } else {
         throw Exception('Failed to load weather data');
       }
@@ -108,7 +99,7 @@ class _Screen1State extends State<Screen1> {
     return Container(
       color: Colors.white,
       child: Center(
-        child: cityName.isEmpty
+        child: cachedWeatherData.isEmpty
             ? const Text(
                 'Fetching location...',
                 textAlign: TextAlign.center,
@@ -128,24 +119,10 @@ class _Screen1State extends State<Screen1> {
                   ),
                   children: [
                     TextSpan(
-                      text: '$cityName\n\n',
+                      text: '$cachedWeatherData\n\n',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 30,
-                      ),
-                    ),
-                    TextSpan(
-                      text:
-                          '$dayOfWeek, $formattedDate\n\n$weatherDescription\n\n',
-                      style: const TextStyle(
-                        fontSize: 24,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '$temperature°C',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 28,
                       ),
                     ),
                   ],

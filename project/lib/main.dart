@@ -23,7 +23,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
-  Screen1 screen1 = Screen1();
 
   final List<Widget> _screens = [
     Screen1(),
