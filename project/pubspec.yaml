@@ -20,6 +20,8 @@ dependencies:
   intl: ^0.17.0  
   geocoding: ^2.0.1
   provider: ^5.0.0
+  weather_icons: ^3.0.0
+
 
 
 

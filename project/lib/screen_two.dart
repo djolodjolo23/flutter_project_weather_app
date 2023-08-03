@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
+import 'package:weather_icons/weather_icons.dart';
 
 class Screen2 extends StatefulWidget {
   @override
@@ -12,11 +13,16 @@ class Screen2 extends StatefulWidget {
 class _Screen2State extends State<Screen2> {
   String apiKey = 'b0f8cc0c19ce85fd145946f87ccd3837';
   String weatherData = '';
+  static bool weatherDataLoaded = false; // for not making multiple API requests
+  static String cachedWeatherData = '';
 
   @override
   void initState() {
     super.initState();
-    fetchCurrentLocation();
+    if (!weatherDataLoaded) {
+      fetchCurrentLocation();
+      weatherDataLoaded = true;
+    }
   }
 
   Future<void> fetchCurrentLocation() async {
@@ -66,11 +72,13 @@ class _Screen2State extends State<Screen2> {
             final weatherDescription = forecast['weather'][0]['description'];
             final temperature =
                 (forecast['main']['temp'] - 273.15).toStringAsFixed(1);
-
+            final icon = forecast['weather'][0]['icon'];
+            final iconData = getIcon(icon);
             weatherData +=
-                '$dayOfWeek, $formattedDate-$time-$temperature°C-$weatherDescription\n\n';
+                '$iconData $dayOfWeek, $formattedDate-$time-$temperature°C-$weatherDescription\n\n';
           }
         });
+        cachedWeatherData = weatherData;
       } else {
         throw Exception('Failed to load weather data');
       }
@@ -79,12 +87,55 @@ class _Screen2State extends State<Screen2> {
     }
   }
 
+  IconData getIcon(String currentWeather) {
+    switch (currentWeather) {
+      case '01d':
+        return WeatherIcons.day_sunny;
+      case '01n':
+        return WeatherIcons.night_clear;
+      case '02d':
+        return WeatherIcons.day_cloudy;
+      case '02n':
+        return WeatherIcons.night_cloudy;
+      case '03d':
+        return WeatherIcons.day_cloudy;
+      case '03n':
+        return WeatherIcons.night_cloudy;
+      case '04d':
+        return WeatherIcons.day_cloudy;
+      case '04n':
+        return WeatherIcons.night_cloudy;
+      case '09d':
+        return WeatherIcons.day_rain;
+      case '09n':
+        return WeatherIcons.night_rain;
+      case '10d':
+        return WeatherIcons.day_rain;
+      case '10n':
+        return WeatherIcons.night_rain;
+      case '11d':
+        return WeatherIcons.day_thunderstorm;
+      case '11n':
+        return WeatherIcons.night_thunderstorm;
+      case '13d':
+        return WeatherIcons.day_snow;
+      case '13n':
+        return WeatherIcons.night_snow;
+      case '50d':
+        return WeatherIcons.day_fog;
+      case '50n':
+        return WeatherIcons.night_fog;
+      default:
+        return WeatherIcons.na;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
       child: Center(
-        child: weatherData.isEmpty
+        child: cachedWeatherData.isEmpty
             ? const Text(
                 'Fetching location...',
                 textAlign: TextAlign.center,
@@ -96,7 +147,7 @@ class _Screen2State extends State<Screen2> {
               )
             : SingleChildScrollView(
                 child: Text(
-                  weatherData,
+                  cachedWeatherData,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 18,

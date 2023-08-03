@@ -20,7 +20,7 @@ class _Screen1State extends State<Screen1> {
   String dayOfWeek = '';
   double latitude = 0.0;
   double longitude = 0.0;
-  static bool weatherDataLoaded = false;
+  static bool weatherDataLoaded = false; // for not making multiple API requests
   static String cachedWeatherData = '';
 
   @override
