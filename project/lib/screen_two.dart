@@ -10,11 +10,18 @@ class Screen2 extends StatefulWidget {
   _Screen2State createState() => _Screen2State();
 }
 
+class WeatherInfo {
+  final IconData iconData;
+  final String weatherText;
+
+  WeatherInfo(this.iconData, this.weatherText);
+}
+
 class _Screen2State extends State<Screen2> {
   String apiKey = 'b0f8cc0c19ce85fd145946f87ccd3837';
   String weatherData = '';
   static bool weatherDataLoaded = false; // for not making multiple API requests
-  static String cachedWeatherData = '';
+  List<WeatherInfo> weatherInfo = [];
 
   @override
   void initState() {
@@ -72,19 +79,18 @@ class _Screen2State extends State<Screen2> {
             final weatherDescription = forecast['weather'][0]['description'];
             final temperature =
                 (forecast['main']['temp'] - 273.15).toStringAsFixed(1);
-            final icon = forecast['weather'][0]['icon'];
-            final iconData = getIcon(icon);
-            weatherData +=
-                '$iconData $dayOfWeek, $formattedDate-$time-$temperature°C-$weatherDescription\n\n';
+            final iconCode = forecast['weather'][0]['icon'];
+            final iconData = getIcon(iconCode);
+            final weatherText =
+                ' $dayOfWeek, $formattedDate-$time-$temperature°C-$weatherDescription\n\n';
+            weatherInfo.add(WeatherInfo(iconData, weatherText));
           }
         });
-        cachedWeatherData = weatherData;
       } else {
         throw Exception('Failed to load weather data');
       }
-    } catch (e) {
-      print(e);
-    }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 
   IconData getIcon(String currentWeather) {
@@ -135,7 +141,7 @@ class _Screen2State extends State<Screen2> {
     return Container(
       color: Colors.white,
       child: Center(
-        child: cachedWeatherData.isEmpty
+        child: weatherInfo.isEmpty
             ? const Text(
                 'Fetching location...',
                 textAlign: TextAlign.center,
@@ -146,14 +152,17 @@ class _Screen2State extends State<Screen2> {
                 ),
               )
             : SingleChildScrollView(
-                child: Text(
-                  cachedWeatherData,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Column(
+                  children: weatherInfo.map((weatherInfo) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(weatherInfo.iconData),
+                        const SizedBox(width: 8),
+                        Text(weatherInfo.weatherText),
+                      ],
+                    );
+                  }).toList(),
                 ),
               ),
       ),
