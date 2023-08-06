@@ -4,58 +4,64 @@ import 'dart:convert';
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_icons/weather_icons.dart';
+import 'location_service.dart';
 
 class Screen2 extends StatefulWidget {
   @override
-  _Screen2State createState() => _Screen2State();
+  createState() => _Screen2State();
 }
 
 class WeatherInfo {
   final IconData iconData;
   final String weatherText;
-
   WeatherInfo(this.iconData, this.weatherText);
+}
+
+class CachedWeatherInfo {
+  static List<WeatherInfo> weatherInfo = [];
 }
 
 class _Screen2State extends State<Screen2> {
   String apiKey = 'b0f8cc0c19ce85fd145946f87ccd3837';
   String weatherData = '';
+  LocationData? locationData;
   static bool weatherDataLoaded = false; // for not making multiple API requests
   List<WeatherInfo> weatherInfo = [];
 
   @override
   void initState() {
     super.initState();
-    if (!weatherDataLoaded) {
-      fetchCurrentLocation();
-      weatherDataLoaded = true;
+    if (CachedWeatherInfo.weatherInfo.isEmpty) {
+      fetchWeatherDataUsingLocation();
+    } else {
+      setState(() {
+        weatherInfo = CachedWeatherInfo.weatherInfo;
+      });
     }
   }
 
-  Future<void> fetchCurrentLocation() async {
-    Location location = Location();
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
+  @override
+  void dispose() {
+    weatherDataLoaded = false;
+    super.dispose();
+  }
 
-    locationData = await location.getLocation();
-    final double latitude = locationData.latitude!;
-    final double longitude = locationData.longitude!;
-    await fetchWeatherData(latitude, longitude);
+  Future<void> fetchWeatherDataUsingLocation() async {
+    if (!weatherDataLoaded) {
+      LocationData? locationData = await fetchCurrentLocation();
+      if (locationData != null) {
+        final double latitude = locationData.latitude!;
+        final double longitude = locationData.longitude!;
+        fetchWeatherData(latitude, longitude);
+        setState(() {
+          weatherDataLoaded = true;
+        });
+      } else {
+        setState(() {
+          weatherDataLoaded = false;
+        });
+      }
+    }
   }
 
   Future<void> fetchWeatherData(double latitude, double longitude) async {
@@ -85,6 +91,7 @@ class _Screen2State extends State<Screen2> {
                 ' $dayOfWeek, $formattedDate-$time-$temperature°C-$weatherDescription\n\n';
             weatherInfo.add(WeatherInfo(iconData, weatherText));
           }
+          CachedWeatherInfo.weatherInfo = weatherInfo;
         });
       } else {
         throw Exception('Failed to load weather data');
@@ -155,11 +162,17 @@ class _Screen2State extends State<Screen2> {
                 child: Column(
                   children: weatherInfo.map((weatherInfo) {
                     return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(weatherInfo.iconData),
+                        Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: Icon(weatherInfo.iconData),
+                        ),
                         const SizedBox(width: 8),
-                        Text(weatherInfo.weatherText),
+                        Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: Text(weatherInfo.weatherText),
+                        ),
                       ],
                     );
                   }).toList(),
