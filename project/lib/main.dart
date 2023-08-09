@@ -25,18 +25,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
+  final PageController _pageController = PageController(initialPage: 0);
 
   final List<Widget> _screens = [
-    Screen1(),
-    Screen2(),
+    const Screen1(),
+    const Screen2(),
     Screen3(),
   ];
 
-  String searchQuery = '';
-
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -45,12 +45,28 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Weather App'),
       ),
-      body: _screens[_currentIndex],
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: _screens.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        itemBuilder: (context, index) {
+          return _screens[index];
+        },
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
           });
         },
         items: const [

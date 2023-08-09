@@ -151,14 +151,9 @@ class _Screen2State extends State<Screen2> {
       color: Colors.white,
       child: Center(
         child: weatherInfo.isEmpty
-            ? const Text(
-                'Fetching location...',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+            ? const CircularProgressIndicator(
+                strokeWidth: 2.0,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
               )
             : SingleChildScrollView(
                 child: Column(

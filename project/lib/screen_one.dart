@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:weather_animation/weather_animation.dart';
 
 class Screen1 extends StatefulWidget {
+  const Screen1({super.key});
+
   @override
   createState() => _Screen1State();
 }
@@ -107,16 +109,6 @@ class _Screen1State extends State<Screen1> {
       print(e);
     }
   }
-
-  // create a getter for the cityName variable
-  String get getCityName => cityName;
-  // create a setter for the cityName variable
-  set setCityName(String cityName) => this.cityName = cityName;
-
-  set setLatitude(double latitude) => this.latitude = latitude;
-  set setLongitude(double longitude) => this.longitude = longitude;
-  double get getLatitude => latitude;
-  double get getLongitude => longitude;
 
   @override
   Widget build(BuildContext context) {

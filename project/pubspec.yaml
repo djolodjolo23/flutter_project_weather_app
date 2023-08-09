@@ -32,13 +32,5 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
-  assets:
-    - images/sunny_sunflowers.jpg
-    - images/cloudy_sunflowers.jpg
-    - images/rainy_sunflowers.jpg
-    - images/sunny_cloudy_sunflowers.jpg
-    - gifs/sun.gif
-    - gifs/cloudy.gif
-    - gifs/rain.gif
   uses-material-design: true
 
