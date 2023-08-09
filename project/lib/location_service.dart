@@ -1,7 +1,4 @@
 import 'package:location/location.dart';
-import 'package:intl/intl.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 Future<LocationData?> fetchCurrentLocation() async {
   Location location = Location();

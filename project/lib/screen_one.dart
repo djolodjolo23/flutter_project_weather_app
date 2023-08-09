@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
+import 'package:weather_animation/weather_animation.dart';
 
 class Screen1 extends StatefulWidget {
   @override
@@ -22,6 +23,28 @@ class _Screen1State extends State<Screen1> {
   double longitude = 0.0;
   static bool weatherDataLoaded = false; // for not making multiple API requests
   static String cachedWeatherData = '';
+  static String cachedWeatherDescription = '';
+
+  Widget getWeatherAnimationForCurrentWeather(String weatherDescription) {
+    WeatherScene weatherScene;
+
+    if (cachedWeatherDescription.contains('clear')) {
+      weatherScene = WeatherScene.scorchingSun;
+    } else if (cachedWeatherDescription.contains('cloud') ||
+        cachedWeatherDescription.contains('overcast')) {
+      weatherScene = WeatherScene.rainyOvercast;
+    } else if (cachedWeatherDescription.contains('rain') ||
+        cachedWeatherDescription.contains('drizzle')) {
+      weatherScene = WeatherScene.rainyOvercast;
+    } else if (cachedWeatherDescription.contains('snow')) {
+      weatherScene = WeatherScene.snowfall;
+    } else if (cachedWeatherDescription.contains('thunder')) {
+      weatherScene = WeatherScene.stormy;
+    } else {
+      weatherScene = WeatherScene.weatherEvery; // Default scene
+    }
+    return weatherScene.getWeather();
+  }
 
   @override
   void initState() {
@@ -76,6 +99,7 @@ class _Screen1State extends State<Screen1> {
               '$cityName\n\n$dayOfWeek, $formattedDate\n\n$weatherDescription\n\n$temperature°C';
         });
         cachedWeatherData = weatherData;
+        cachedWeatherDescription = weatherDescription;
       } else {
         throw Exception('Failed to load weather data');
       }
@@ -98,36 +122,41 @@ class _Screen1State extends State<Screen1> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: Center(
-        child: cachedWeatherData.isEmpty
-            ? const Text(
-                'Fetching location...',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            : RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 24,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '$cachedWeatherData\n\n',
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Visibility(
+            visible: cachedWeatherData.isNotEmpty,
+            child: getWeatherAnimationForCurrentWeather(
+                cachedWeatherDescription), // Call the method to choose the appropriate widget
+          ),
+          Center(
+            child: cachedWeatherData.isEmpty
+                ? const CircularProgressIndicator(
+                    strokeWidth: 2.0,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                  )
+                : RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
                       style: const TextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 30,
                       ),
+                      children: [
+                        TextSpan(
+                          text: '$cachedWeatherData\n\n',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+          ),
+        ],
       ),
     );
   }

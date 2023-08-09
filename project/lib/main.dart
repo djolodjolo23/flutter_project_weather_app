@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'screen_one.dart';
 import 'screen_two.dart';
 import 'screen_three.dart';
-import 'location_service.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   createState() => _MyHomePageState();
 }
@@ -29,6 +31,8 @@ class _MyHomePageState extends State<MyHomePage> {
     Screen2(),
     Screen3(),
   ];
+
+  String searchQuery = '';
 
   @override
   void initState() {
