@@ -7,6 +7,8 @@ import 'package:weather_icons/weather_icons.dart';
 import 'location_service.dart';
 
 class Screen2 extends StatefulWidget {
+  const Screen2({super.key});
+
   @override
   createState() => _Screen2State();
 }
