@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
+import 'package:weather_icons/weather_icons.dart';
+import 'weather_animation_helper.dart';
 import 'package:weather_animation/weather_animation.dart';
 
 class Screen1 extends StatefulWidget {
@@ -15,38 +17,11 @@ class Screen1 extends StatefulWidget {
 class _Screen1State extends State<Screen1> {
   // declaring these as globals
   String apiKey = 'b0f8cc0c19ce85fd145946f87ccd3837';
-  String cityName = '';
   String weatherData = '';
-  String weatherDescription = '';
-  String temperature = '';
-  String formattedDate = '';
-  String dayOfWeek = '';
-  double latitude = 0.0;
-  double longitude = 0.0;
   static bool weatherDataLoaded = false; // for not making multiple API requests
   static String cachedWeatherData = '';
   static String cachedWeatherDescription = '';
-
-  Widget getWeatherAnimationForCurrentWeather(String weatherDescription) {
-    WeatherScene weatherScene;
-
-    if (cachedWeatherDescription.contains('clear')) {
-      weatherScene = WeatherScene.scorchingSun;
-    } else if (cachedWeatherDescription.contains('cloud') ||
-        cachedWeatherDescription.contains('overcast')) {
-      weatherScene = WeatherScene.rainyOvercast;
-    } else if (cachedWeatherDescription.contains('rain') ||
-        cachedWeatherDescription.contains('drizzle')) {
-      weatherScene = WeatherScene.rainyOvercast;
-    } else if (cachedWeatherDescription.contains('snow')) {
-      weatherScene = WeatherScene.snowfall;
-    } else if (cachedWeatherDescription.contains('thunder')) {
-      weatherScene = WeatherScene.stormy;
-    } else {
-      weatherScene = WeatherScene.weatherEvery; // Default scene
-    }
-    return weatherScene.getWeather();
-  }
+  static String iconCode = '';
 
   @override
   void initState() {
@@ -90,12 +65,15 @@ class _Screen1State extends State<Screen1> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final weatherJson = json.decode(response.body);
-        cityName = weatherJson['name'].toString();
-        weatherDescription =
+        String cityName = weatherJson['name'].toString();
+        String weatherDescription =
             weatherJson['weather'][0]['description'].toString();
-        temperature = (weatherJson['main']['temp'] - 273.15).toStringAsFixed(1);
-        formattedDate = DateFormat('MMMM dd, yyyy').format(DateTime.now());
-        dayOfWeek = DateFormat('EEEE').format(DateTime.now());
+        iconCode = weatherJson['weather'][0]['icon'];
+        String temperature =
+            (weatherJson['main']['temp'] - 273.15).toStringAsFixed(1);
+        String formattedDate =
+            DateFormat('MMMM dd, yyyy').format(DateTime.now());
+        String dayOfWeek = DateFormat('EEEE').format(DateTime.now());
         setState(() {
           weatherData =
               '$cityName\n\n$dayOfWeek, $formattedDate\n\n$weatherDescription\n\n$temperature°C';
@@ -112,41 +90,97 @@ class _Screen1State extends State<Screen1> {
 
   @override
   Widget build(BuildContext context) {
+    WeatherScene scene;
+    scene =
+        WeatherAnimationHelper.getWeatherAnimation(cachedWeatherDescription);
+
+    Widget customWeatherWidget = const WrapperScene(
+      colors: [
+        Color.fromARGB(255, 69, 120, 177),
+        Color.fromARGB(255, 231, 182, 167),
+      ],
+      children: [
+        SunWidget(),
+        CloudWidget(),
+      ],
+    );
+
+    List<String> rows = cachedWeatherData.split('\n');
+
+    List<InlineSpan> modifiedSpans = [];
+    for (int index = 0; index < rows.length; index++) {
+      String row = rows[index];
+      if (index < 5) {
+        modifiedSpans.add(
+          TextSpan(
+            text: '   $row\n',
+            style: const TextStyle(
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        );
+      } else {
+        modifiedSpans.add(
+          TextSpan(
+            text: '$row\n',
+            style: const TextStyle(
+              fontSize: 40,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      }
+      if (index == 3) {
+        IconData icondata = WeatherAnimationHelper.getIcon(iconCode);
+        modifiedSpans.add(
+          WidgetSpan(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10.0),
+              child: Icon(icondata),
+            ),
+          ),
+        );
+      }
+    }
+
+    // Loading state indicator
+    bool isLoading = cachedWeatherData.isEmpty;
+
+    bool shouldUseCustomWidget = cachedWeatherDescription.contains('cloud') ||
+        cachedWeatherDescription.contains('overcast');
+
     return Container(
       color: Colors.white,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Visibility(
-            visible: cachedWeatherData.isNotEmpty,
-            child: getWeatherAnimationForCurrentWeather(
-                cachedWeatherDescription), // Call the method to choose the appropriate widget
-          ),
-          Center(
-            child: cachedWeatherData.isEmpty
-                ? const CircularProgressIndicator(
-                    strokeWidth: 2.0,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                  )
-                : RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: 24,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: '$cachedWeatherData\n\n',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30,
+          // checking if the weather description contains 'cloud' or 'overcast', to know if I should use custom widget or not
+          shouldUseCustomWidget ? customWeatherWidget : const Offstage(),
+          Positioned.fill(
+            child: Center(
+              child: isLoading
+                  ? const CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                    )
+                  : Container(
+                      padding: const EdgeInsets.only(top: 300.0),
+                      child: Center(
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            children: modifiedSpans,
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+            ),
           ),
         ],
       ),

@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
-import 'package:weather_icons/weather_icons.dart';
 import 'location_service.dart';
+import 'weather_animation_helper.dart';
 
 class Screen2 extends StatefulWidget {
   const Screen2({super.key});
@@ -88,7 +88,7 @@ class _Screen2State extends State<Screen2> {
             final temperature =
                 (forecast['main']['temp'] - 273.15).toStringAsFixed(1);
             final iconCode = forecast['weather'][0]['icon'];
-            final iconData = getIcon(iconCode);
+            final iconData = WeatherAnimationHelper.getIcon(iconCode);
             final weatherText =
                 ' $dayOfWeek, $formattedDate-$time-$temperature°C-$weatherDescription\n\n';
             weatherInfo.add(WeatherInfo(iconData, weatherText));
@@ -100,49 +100,6 @@ class _Screen2State extends State<Screen2> {
       }
       // ignore: empty_catches
     } catch (e) {}
-  }
-
-  IconData getIcon(String currentWeather) {
-    switch (currentWeather) {
-      case '01d':
-        return WeatherIcons.day_sunny;
-      case '01n':
-        return WeatherIcons.night_clear;
-      case '02d':
-        return WeatherIcons.day_cloudy;
-      case '02n':
-        return WeatherIcons.night_cloudy;
-      case '03d':
-        return WeatherIcons.day_cloudy;
-      case '03n':
-        return WeatherIcons.night_cloudy;
-      case '04d':
-        return WeatherIcons.day_cloudy;
-      case '04n':
-        return WeatherIcons.night_cloudy;
-      case '09d':
-        return WeatherIcons.day_rain;
-      case '09n':
-        return WeatherIcons.night_rain;
-      case '10d':
-        return WeatherIcons.day_rain;
-      case '10n':
-        return WeatherIcons.night_rain;
-      case '11d':
-        return WeatherIcons.day_thunderstorm;
-      case '11n':
-        return WeatherIcons.night_thunderstorm;
-      case '13d':
-        return WeatherIcons.day_snow;
-      case '13n':
-        return WeatherIcons.night_snow;
-      case '50d':
-        return WeatherIcons.day_fog;
-      case '50n':
-        return WeatherIcons.night_fog;
-      default:
-        return WeatherIcons.na;
-    }
   }
 
   @override
