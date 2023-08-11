@@ -144,7 +144,6 @@ class _Screen1State extends State<Screen1> {
       }
     }
 
-    // Loading state indicator
     bool isLoading = cachedWeatherData.isEmpty;
 
     bool shouldUseCustomWidget = cachedWeatherDescription.contains('cloud') ||
@@ -155,8 +154,14 @@ class _Screen1State extends State<Screen1> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // checking if the weather description contains 'cloud' or 'overcast', to know if I should use custom widget or not
-          shouldUseCustomWidget ? customWeatherWidget : const Offstage(),
+          if (!isLoading && !shouldUseCustomWidget)
+            scene.getWeather()
+          else
+            const Offstage(),
+          if (!isLoading && shouldUseCustomWidget)
+            customWeatherWidget
+          else
+            const Offstage(),
           Positioned.fill(
             child: Center(
               child: isLoading
