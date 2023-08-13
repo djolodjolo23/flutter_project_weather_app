@@ -85,8 +85,10 @@ class _Screen2State extends State<Screen2> {
             final formattedDate = DateFormat('MMMM dd, yyyy').format(date);
             final time = DateFormat('HH:mm').format(date);
             final weatherDescription = forecast['weather'][0]['description'];
-            final temperature =
-                (forecast['main']['temp'] - 273.15).toStringAsFixed(1);
+            final temperature = (forecast['main']['temp'] - 273.15)
+                .round()
+                .toInt()
+                .toStringAsFixed(1);
             final iconCode = forecast['weather'][0]['icon'];
             final iconData = WeatherAnimationHelper.getIcon(iconCode);
             final weatherText =

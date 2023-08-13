@@ -30,7 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _screens = [
     const Screen1(),
     const Screen2(),
-    Screen3(),
+    const Screen3(),
   ];
 
   @override

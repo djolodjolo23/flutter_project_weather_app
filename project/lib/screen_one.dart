@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
-import 'package:weather_icons/weather_icons.dart';
 import 'weather_animation_helper.dart';
 import 'package:weather_animation/weather_animation.dart';
 
@@ -69,8 +68,9 @@ class _Screen1State extends State<Screen1> {
         String weatherDescription =
             weatherJson['weather'][0]['description'].toString();
         iconCode = weatherJson['weather'][0]['icon'];
-        String temperature =
-            (weatherJson['main']['temp'] - 273.15).toStringAsFixed(1);
+        double temperatureValue = weatherJson['main']['temp'] - 273.15;
+        int roundedTemperature = temperatureValue.round().toInt();
+        String temperature = roundedTemperature.toString();
         String formattedDate =
             DateFormat('MMMM dd, yyyy').format(DateTime.now());
         String dayOfWeek = DateFormat('EEEE').format(DateTime.now());
@@ -145,7 +145,6 @@ class _Screen1State extends State<Screen1> {
     }
 
     bool isLoading = cachedWeatherData.isEmpty;
-
     bool shouldUseCustomWidget = cachedWeatherDescription.contains('cloud') ||
         cachedWeatherDescription.contains('overcast');
 

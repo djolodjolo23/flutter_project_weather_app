@@ -71,9 +71,8 @@ class Screen3 extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 20),
-
             SizedBox(height: 50),
-            SpinningLettersWidget(), // Add the spinning letters widget here
+            SpinningLettersWidget(),
           ],
         ),
       ),
